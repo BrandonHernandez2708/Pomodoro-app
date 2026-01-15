@@ -1,4 +1,5 @@
 import customtkinter as ctk
+from tkinter import messagebox
 import time 
 ctk.set_appearance_mode("dark")
 
@@ -19,6 +20,7 @@ class App(ctk.CTk):
         self.tiempo_inicial = 0
         self.tiempo_estudio = 25 * 60
         self.tiempo_descanso = 5 * 60
+        self.tiempo_reset = 45 * 60
         self.ciclos_completados = 0
         self.tiempo_transcurrido = 0
         self.after_id = None
@@ -104,6 +106,11 @@ class App(ctk.CTk):
 
 
     def iniciar_descanso(self):
+        if self.ciclos_completados == 3:
+            self.ciclos_completados = 0
+            self.label_ciclo.configure(text=f"{self.ciclos_completados}/3")
+            self.inicio_reset()
+            return 
         if self.after_id:
             self.after_cancel(self.after_id)
         self.titulo.configure(text="Modo Descanso")
@@ -152,8 +159,37 @@ class App(ctk.CTk):
             self.iniciar_descanso()
         else:
             self.iniciar_pomodoro()
-    
+       
+        
+    def inicio_reset(self):
+        messagebox.showinfo("Descanso Largo", "Has completado 3 ciclos. Ahora tomarás un descanso largo de 45 minutos.")
+        if self.after_id:
+            self.after_cancel(self.after_id)
+            self.titulo.configure(text="Modo Descanso")
 
+            self.modo="descanso"
+            self.tiempo_inicial = time.time()
+            self.tiempo_transcurrido = 0
+            self.corriendo = True
+            self.actualizar_reset()
+    def actualizar_reset(self):
+        self.titulo.configure(text="Modo Descanso")
+        self.modo="descanso"
+        if self.corriendo:
+            self.tiempo_transcurrido = time.time() - self.tiempo_inicial
+            tiempo_restante = self.tiempo_reset - int(self.tiempo_transcurrido)
+            horas, rem = divmod(tiempo_restante, 3600)
+            minutos, segundos = divmod(rem, 60)
+            self.label_tiempo.configure(text=f"{int(horas):02}:{int(minutos):02}:{int(segundos):02}")
+
+            self.after_id = self.after(1000, self.actualizar_reset)
+            if tiempo_restante <= 0:
+                self.corriendo = False
+                self.tiempo_transcurrido = 0
+                self.label_tiempo.configure(text="00:45:00")
+                self.iniciar_pomodoro()
+    
+    
 
         
 
