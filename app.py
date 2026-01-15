@@ -8,8 +8,11 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.title("Tecnica de Estudio Pomodoro")
+        self.title("Cronómetro Pomodoro")
         self.geometry("600x400")
+        self.iconbitmap("icono.ico")
+
+    
 
         # ----- Contenedor principal -----
         self.container = ctk.CTkFrame(self)
@@ -29,18 +32,19 @@ class App(ctk.CTk):
         self.titulo = ctk.CTkLabel(
             self.container,
             text="Modo Pomodoro",
-            font=("Arial", 22)
+            font=("Arial", 22),
+           text_color="red"
         )
         self.titulo.pack(pady=10)
 
         # ----- Tiempo -----
         self.label_tiempo = ctk.CTkLabel(
             self.container,
-            text="00:00:00",
+            text="00:25:00",
             font=("Arial", 36)
         )
         self.label_tiempo.pack(pady=20)
-
+    
         # ----- Botones -----
         botones_frame = ctk.CTkFrame(self.container)
         botones_frame.pack(pady=10)
@@ -71,15 +75,16 @@ class App(ctk.CTk):
     def iniciar_pomodoro(self):
         if self.after_id:
             self.after_cancel(self.after_id)
-        self.titulo.configure(text="Modo Pomodoro")
+        self.titulo.configure(text="Modo Pomodoro",text_color="red") 
         self.btn_continuar.grid_remove()
         self.btn_pausar.grid()
+        self.btn_iniciar.grid_remove()
         if not self.corriendo:
             self.corriendo = True
             self.tiempo_inicial = time.time() - self.tiempo_transcurrido
             self.actualizar_pomodoro()
     def actualizar_pomodoro(self):
-        self.titulo.configure(text="Modo Pomodoro")
+        self.titulo.configure(text="Modo Pomodoro",text_color="red")
         self.modo="pomodoro"
         
         if self.corriendo:
@@ -113,7 +118,7 @@ class App(ctk.CTk):
             return 
         if self.after_id:
             self.after_cancel(self.after_id)
-        self.titulo.configure(text="Modo Descanso")
+        self.titulo.configure(text="Modo Descanso", text_color="green")
 
         self.modo="descanso"
         self.tiempo_inicial = time.time()
@@ -121,7 +126,7 @@ class App(ctk.CTk):
         self.corriendo = True
         self.actualizar_descanso()
     def actualizar_descanso(self):
-        self.titulo.configure(text="Modo Descanso")
+        self.titulo.configure(text="Modo Descanso", text_color="green")
         self.modo="descanso"
         if self.corriendo:
             self.tiempo_transcurrido = time.time() - self.tiempo_inicial
@@ -143,8 +148,11 @@ class App(ctk.CTk):
         self.tiempo_inicial = time.time() - self.tiempo_transcurrido
         if self.modo == "pomodoro":
             self.actualizar_pomodoro()
-        else:
+        elif self.ciclos_completados == 0:
+            self.actualizar_reset()
+        elif self.modo == "descanso":
             self.actualizar_descanso()
+       
             
     def siguiente(self):
         if self.after_id:
@@ -165,7 +173,7 @@ class App(ctk.CTk):
         messagebox.showinfo("Descanso Largo", "Has completado 3 ciclos. Ahora tomarás un descanso largo de 45 minutos.")
         if self.after_id:
             self.after_cancel(self.after_id)
-            self.titulo.configure(text="Modo Descanso")
+            self.titulo.configure(text="Modo Descanso", text_color="#00ffd5")
 
             self.modo="descanso"
             self.tiempo_inicial = time.time()
@@ -173,7 +181,7 @@ class App(ctk.CTk):
             self.corriendo = True
             self.actualizar_reset()
     def actualizar_reset(self):
-        self.titulo.configure(text="Modo Descanso")
+        self.titulo.configure(text="Modo Descanso", text_color="#00ffd5")
         self.modo="descanso"
         if self.corriendo:
             self.tiempo_transcurrido = time.time() - self.tiempo_inicial
