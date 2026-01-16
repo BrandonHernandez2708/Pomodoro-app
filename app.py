@@ -1,5 +1,6 @@
 import customtkinter as ctk
 from tkinter import messagebox
+from plyer import notification
 import time 
 ctk.set_appearance_mode("dark")
 
@@ -10,7 +11,7 @@ class App(ctk.CTk):
 
         self.title("Cronómetro Pomodoro")
         self.geometry("600x400")
-        self.iconbitmap("icono.ico")
+        #self.iconbitmap("icono.ico")
 
     
 
@@ -101,6 +102,11 @@ class App(ctk.CTk):
                 self.ciclos_completados += 1
                 self.label_ciclo.configure(text=f"{self.ciclos_completados}/3")
                 self.label_tiempo.configure(text="00:25:00")
+                notification.notify(
+                    title="Pomodoro Completo",
+                    message="Completaste un ciclo , es turno de descansar",
+                    timeout=10
+                )
                 self.iniciar_descanso()
     def pausar(self):
         if self.after_id:
@@ -140,6 +146,11 @@ class App(ctk.CTk):
                 self.corriendo = False
                 self.tiempo_transcurrido = 0
                 self.label_tiempo.configure(text="00:05:00")
+                notification.notify(
+                    title="Descanso Completo",
+                    message="Tu descanso ha terminado, continua con tu estudio",
+                    timeout=10
+                )
                 self.siguiente()
     def continuar(self):
         if self.after_id:
@@ -147,10 +158,14 @@ class App(ctk.CTk):
         self.corriendo = True
         self.tiempo_inicial = time.time() - self.tiempo_transcurrido
         if self.modo == "pomodoro":
+            self.btn_continuar.grid_remove()
+            self.btn_pausar.grid()
             self.actualizar_pomodoro()
         elif self.ciclos_completados == 0:
             self.actualizar_reset()
         elif self.modo == "descanso":
+            self.btn_continuar.grid_remove()
+            self.btn_pausar.grid()
             self.actualizar_descanso()
        
             
@@ -195,6 +210,11 @@ class App(ctk.CTk):
                 self.corriendo = False
                 self.tiempo_transcurrido = 0
                 self.label_tiempo.configure(text="00:45:00")
+                notification.notify(
+                    title="Descanso Largo Completo",
+                    message="Se ha reiniciado los ciclos , suerte!",
+                    timeout=10
+                )
                 self.iniciar_pomodoro()
     
     
